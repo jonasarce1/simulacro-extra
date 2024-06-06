@@ -1,6 +1,8 @@
 import { FreshContext, Handlers, PageProps } from "$fresh/server.ts";
 import Login from "../components/Login.tsx";
 import { RouteConfig } from "$fresh/server.ts";
+import jwt from "jsonwebtoken";
+import {setCookie} from "$std/http/cookie.ts";
 
 export const config: RouteConfig = {
   skipInheritedLayouts: true, 
@@ -38,10 +40,28 @@ export const handler:Handlers<Data> = {
         if(response.status === 200){
             const data = await response.json();
 
-            console.log(data.email)
-            console.log(data.password)
+            const token = jwt.sign({
+                email: data.email,
+                id: data.id,
+                name: data.name
+            }, JWT_SECRET,
+            {expiresIn: "24h"})
 
-            return new Response("", {
+            const url = new URL(req.url);
+
+            const headers = new Headers();
+            headers.set("location", "/videos");
+
+            setCookie(headers, {
+                name: "auth",
+                value: token,
+                sameSite: "Lax",
+                domain: url.hostname,
+                path: "/",
+                secure: true
+            })
+
+            return new Response(null, {
                 status: 307,
                 headers:{
                     location: "/videos"
