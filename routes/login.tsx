@@ -24,7 +24,32 @@ export const handler:Handlers<Data> = {
             throw new Error("Error al coger las variables de entonro")
         }
 
-        return ctx.render()
+        const response = await fetch(`${API_URL}/checkuser`, {
+            method: "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        })
+
+        if(response.status === 200){
+            const data = await response.json();
+
+            console.log(data.email)
+            console.log(data.password)
+
+            return new Response("", {
+                status: 307,
+                headers:{
+                    location: "/videos"
+                }
+            })
+        }else{
+            return ctx.render({message: "Incorrect credentials or user does not exist"});
+        }
     }
 }
 
