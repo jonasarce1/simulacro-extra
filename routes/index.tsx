@@ -1,7 +1,8 @@
-const Page = () => {
-  return(
-    <h1>Hola</h1>
-  )
+export const handler = () => {
+  return new Response("", {
+    status: 303,
+    headers:{
+      location: "/videos"
+    }
+  })
 }
-
-export default Page;
